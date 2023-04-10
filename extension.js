@@ -52,67 +52,67 @@ const ActivateWindowByTitleInterface = `
 `;
 
 class ActivateWindowByTitle {
-    #dbus;
-
     enable() {
-        this.#dbus = Gio.DBusExportedObject.wrapJSObject(
+        this._dbus = Gio.DBusExportedObject.wrapJSObject(
             ActivateWindowByTitleInterface,
             this,
         );
-        this.#dbus.export(
+        this._dbus.export(
             Gio.DBus.session,
             '/de/lucaswerkmeister/ActivateWindowByTitle',
         );
     }
 
     disable() {
-        this.#dbus.unexport_from_connection(
+        this._dbus.unexport_from_connection(
             Gio.DBus.session,
         );
-        this.#dbus = undefined;
+        this._dbus = undefined;
     }
 
-    #activateByPredicate(predicate) {
-        for (const actor of global.get_window_actors()) {
-            const window = actor.get_meta_window();
-            if (predicate(window)) {
-                window.activate(global.get_current_time());
-                return true;
+    constructor() {
+        this._activateByPredicate = function(predicate) {
+            for (const actor of global.get_window_actors()) {
+                const window = actor.get_meta_window();
+                if (predicate(window)) {
+                    window.activate(global.get_current_time());
+                    return true;
+                }
             }
+            return false;
         }
-        return false;
-    }
 
-    #activateByTitlePredicate(predicate) {
-        return this.#activateByPredicate((window) => {
-            const title = window.get_title();
-            if (title === null) {
-                return false;
-            }
-            return predicate(title);
-        });
+        this._activateByTitlePredicate = function(predicate) {
+            return this._activateByPredicate((window) => {
+                const title = window.get_title();
+                if (title === null) {
+                    return false;
+                }
+                return predicate(title);
+            });
+        }
     }
 
     activateByTitle(fullTitle) {
-        return this.#activateByTitlePredicate(
+        return this._activateByTitlePredicate(
             (title) => title === fullTitle,
         );
     }
 
     activateByPrefix(prefix) {
-        return this.#activateByTitlePredicate(
+        return this._activateByTitlePredicate(
             (title) => title.startsWith(prefix),
         );
     }
 
     activateBySuffix(suffix) {
-        return this.#activateByTitlePredicate(
+        return this._activateByTitlePredicate(
             (title) => title.endsWith(suffix),
         );
     }
 
     activateBySubstring(substring) {
-        return this.#activateByTitlePredicate(
+        return this._activateByTitlePredicate(
             (title) => title.includes(substring),
         );
     }
@@ -121,13 +121,13 @@ class ActivateWindowByTitle {
     // because that would be vulnerable to ReDoS attacks
 
     activateByWmClass(name) {
-        return this.#activateByPredicate(
+        return this._activateByPredicate(
             (window) => window.get_wm_class() === name,
         );
     }
 
     activateByWmClassInstance(instance) {
-        return this.#activateByPredicate(
+        return this._activateByPredicate(
             (window) => window.get_wm_class_instance() === instance,
         );
     }
