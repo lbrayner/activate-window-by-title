@@ -1,5 +1,5 @@
 {
-  "uuid": "activate-window-by-title@lucaswerkmeister.de",
+  "uuid": "activate-window-by-title@lbrayner.br",
   "name": "Activate Window By Title",
   "description": "Expose a D-Bus interface to activate a window by its title or WM_CLASS",
   "version": 4,
@@ -7,5 +7,5 @@
     "42",
     "43"
   ],
-  "url": "https://github.com/lucaswerkmeister/activate-window-by-title"
+  "url": "https://github.com/lbrayner/activate-window-by-title"
 }
